@@ -11,8 +11,8 @@ body, html {
 }
 
 .background{
-    width: 715px;
-    height: 715px;
+    width: 730px;
+    height: 730px;
     background-color: #bbada0;
     padding: 10px;
     position: absolute;
@@ -32,6 +32,9 @@ body, html {
     font-weight: bold;
     font-size: 75px;
     border-radius: 4px;
+}
+.move {
+    transition: left 0.1s, bottom 0.1s;
 }
 .unselectable {
     -webkit-touch-callout: none;

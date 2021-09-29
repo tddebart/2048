@@ -16,8 +16,8 @@ for (y = 0; y < 4; y++) {
     for (x = 0; x < 4; x++) {
         const div = document.createElement('div');
         div.className = "block unselectable"
-        div.style.left = (175*x).toString()+'px'
-        div.style.bottom = (175*y).toString()+'px'
+        div.style.left = (180*x).toString()+'px'
+        div.style.bottom = (180*y).toString()+'px'
         //div.textContent = Math.floor((Math.random()*100)).toString()
         div.id = x+','+y
         const background = document.getElementById('background')
@@ -25,6 +25,7 @@ for (y = 0; y < 4; y++) {
     }
 }
 
+addRandomTile()
 addRandomTile()
 
 function addRandomTile() {
@@ -34,14 +35,12 @@ function addRandomTile() {
         const x = getRndInteger(0,3)
         const y = getRndInteger(0,3)
 
-        const tile = document.getElementById(x+','+y)
-        if(tile.textContent === "") {
+        if(document.getElementById(x+','+y+"T") == null) {
             if(Math.random() > 0.35) {
-                tile.textContent = "2"
+                createTile(x,y,'2')
             } else {
-                tile.textContent = "4"
+                createTile(x,y,'4')
             }
-            //tile.style.background = colors[2]
             updateColors()
             break;
         }
@@ -52,13 +51,37 @@ function addRandomTile() {
 }
 
 function createTile(x,y,number) {
+    const exTile = document.getElementById(x+','+y+"T")
+    if(exTile != null) {
+        exTile.textContent = number.toString()
+    } else {
+        const div = document.createElement('div');
+        div.className = "block unselectable move"
+        div.style.left = (180*x).toString()+'px'
+        div.style.bottom = (180*y).toString()+'px'
+        div.textContent = number
+        div.id = x+','+y+'T'
+        const background = document.getElementById('background')
+        background.appendChild(div)
+    }
+}
 
+function GetTile(x,y) {
+    const tile = document.getElementById(x+','+y+"T")
+    if(tile!= null) {
+        return tile
+    }else {
+        return null
+    }
 }
 
 function updateColors() {
     for (y = 0; y < 4; y++) {
         for (x = 0; x < 4; x++) {
-            const tile = document.getElementById(x+','+y)
+            const tile = GetTile(x,y)
+            if(tile == null) {
+                continue;
+            }
             if(tile.textContent === "") {
                 tile.style.background = ""
             }
@@ -74,27 +97,45 @@ function updateColors() {
 }
 
 function move(xMain,yMain){
-        for (i = 0; i < 4; i++) {
-            for (let y = 0; y < 4; y++) {
-                for (let x = 0; x < 4; x++) {
-                    const tile = document.getElementById(x+','+y)
-                    if (tile.textContent !== "") {
-                        moveTile(tile, x+xMain, y+yMain)
-                    }
+    for (i = 0; i < 10; i++) {
+        let doneList = []
+        for (let y = 0; y < 4; y++) {
+            for (let x = 0; x < 4; x++) {
+                const tile = GetTile(x,y)
+                if (tile !== null && !doneList.includes(tile)) {
+                    moveTile(tile, x+xMain, y+yMain)
+                    doneList.push(tile)
                 }
             }
         }
-    addRandomTile()
+    }
+    setTimeout(function() {
+        addRandomTile()
+
+    }, 100)
 }
 
 function moveTile(tile, x,y) {
-    const nextTile = document.getElementById((x)+','+(y))
-    if(nextTile != null && nextTile.textContent === "") {
-        nextTile.textContent = tile.textContent
-        tile.textContent = ""
-    } else if(nextTile != null && nextTile.textContent === tile.textContent) {
-        nextTile.textContent = ((parseInt(nextTile.textContent))+(parseInt(tile.textContent))).toString()
-        tile.textContent = ""
+    const back = document.getElementById(x+','+y)
+    const nextTile = GetTile(x,y)
+    if (back != null) {
+        if(nextTile == null) {
+            tile.style.left = back.style.left;
+            tile.style.bottom = back.style.bottom;
+            tile.id = x+','+y+'T'
+        } else if(nextTile.textContent === tile.textContent) {
+            tile.style.left = back.style.left;
+            tile.style.bottom = back.style.bottom;
+            tile.style.zIndex = "10"
+            tile.textContent = ((parseInt(nextTile.textContent))+(parseInt(tile.textContent))).toString()
+            tile.id = nextTile.id;
+            tile.ontransitionend = () => {
+                //background.removeChild(nextTile)
+                nextTile.remove()
+                updateColors()
+            }
+        }
+
     }
     updateColors()
 }
