@@ -97,47 +97,47 @@ function updateColors() {
 }
 
 function move(xMain,yMain){
-    for (i = 0; i < 10; i++) {
-        let doneList = []
+    //for (i = 0; i < 10; i++) {
+    for (i = 1; i < 10; i++) {
         for (let y = 0; y < 4; y++) {
             for (let x = 0; x < 4; x++) {
                 const tile = GetTile(x,y)
-                if (tile !== null && !doneList.includes(tile)) {
-                    moveTile(tile, x+xMain, y+yMain)
-                    doneList.push(tile)
+                if (tile !== null) {
+                    const alteredPosX = x+xMain
+                    const alteredPosY = y+yMain
+                    const nextTile = GetTile(alteredPosX,alteredPosY)
+                    const back = document.getElementById(alteredPosX+','+alteredPosY)
+                    if(back != null ) {
+                        if(nextTile == null) {
+                            tile.style.left = back.style.left;
+                            tile.style.bottom = back.style.bottom;
+                            tile.id = alteredPosX+','+alteredPosY+'T'
+                        } else if(nextTile.textContent === tile.textContent) {
+                            tile.style.left = nextTile.style.left;
+                            tile.style.bottom = nextTile.style.bottom;
+                            tile.style.zIndex = "10"
+                            tile.textContent = ((parseInt(nextTile.textContent))+(parseInt(tile.textContent))).toString()
+                            tile.id = nextTile.id;
+                            //doneList.push(nextTile)
+                            tile.ontransitionend = () => {
+                                //background.removeChild(nextTile)
+                                nextTile.remove()
+                                updateColors()
+                            }
+                        }
+                    }
                 }
+
+                //moveTile(tile, x+xMain, y+yMain)
+                //doneList.push(tile)
             }
         }
     }
+    //}
     setTimeout(function() {
         addRandomTile()
 
-    }, 100)
-}
-
-function moveTile(tile, x,y) {
-    const back = document.getElementById(x+','+y)
-    const nextTile = GetTile(x,y)
-    if (back != null) {
-        if(nextTile == null) {
-            tile.style.left = back.style.left;
-            tile.style.bottom = back.style.bottom;
-            tile.id = x+','+y+'T'
-        } else if(nextTile.textContent === tile.textContent) {
-            tile.style.left = back.style.left;
-            tile.style.bottom = back.style.bottom;
-            tile.style.zIndex = "10"
-            tile.textContent = ((parseInt(nextTile.textContent))+(parseInt(tile.textContent))).toString()
-            tile.id = nextTile.id;
-            tile.ontransitionend = () => {
-                //background.removeChild(nextTile)
-                nextTile.remove()
-                updateColors()
-            }
-        }
-
-    }
-    updateColors()
+    }, 50)
 }
 
 document.onkeydown = function (e) {
@@ -154,4 +154,14 @@ document.onkeydown = function (e) {
 
 function getRndInteger(min, max) {
     return Math.floor(Math.random() * (max - min + 1) ) + min;
+}
+
+function Reset() {
+    for (let y = 0; y < 4; y++) {
+        for (let x = 0; x < 4; x++) {
+            GetTile(x,y)?.remove()
+        }
+        }
+    addRandomTile()
+    addRandomTile()
 }
